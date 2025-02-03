@@ -1,4 +1,4 @@
-module pdf-form-filler
+module github.com/yourusername/pdfprocessor
 
 go 1.22
 
