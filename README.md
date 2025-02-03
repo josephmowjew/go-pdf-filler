@@ -1,6 +1,6 @@
 # go-pdf-filler
 
-A Go package for programmatically filling PDF forms with support for validation, logging, and multiple field types. This package provides a robust solution for automated PDF form filling with type safety and validation.
+A Go package for programmatically filling PDF forms with support for validation, logging, and multiple field types. This package provides a robust solution for automated PDF form filling with type safety, validation, and direct upload capabilities.
 
 ## Features
 
@@ -13,6 +13,7 @@ A Go package for programmatically filling PDF forms with support for validation,
 - Configurable logging
 - Type-safe field setting
 - Batch field updates
+- Direct upload functionality
 - Customizable configuration options
 
 ## Requirements
@@ -26,26 +27,36 @@ A Go package for programmatically filling PDF forms with support for validation,
 ## Installation
 
 ```bash
-go get github.com/yourusername/go-pdf-filler
+go get github.com/josephmowjew/go-pdf-filler@v0.1.1
 ```
 
 ## Usage
 
-Here's a basic example of how to use the package:
+Here's a basic example of how to use the package with upload functionality:
 
 ```go
 package main
 
 import (
+    "context"
     "log"
-    "github.com/yourusername/go-pdf-filler/pdfprocessor"
+    "github.com/josephmowjew/go-pdf-filler/pdfprocessor"
+    service "github.com/josephmowjew/go-pdf-filler/pdfprocessor/services"
 )
 
 func main() {
-    // Initialize the PDF form processor
+    // Create an uploader instance
+    uploaderConfig := service.Config{
+        UploadBaseURL: "https://your-upload-service.com/api/upload",
+        BearerToken:   "your-bearer-token",
+    }
+    uploader := service.NewUploader(uploaderConfig)
+
+    // Initialize the PDF form processor with uploader
     processor, err := pdfprocessor.NewForm("form.pdf",
         pdfprocessor.WithValidation(),
         pdfprocessor.WithLogger(log.Default()),
+        pdfprocessor.WithUploader(uploader),
     )
     if err != nil {
         log.Fatalf("Failed to create form: %v", err)
@@ -69,10 +80,22 @@ func main() {
         log.Fatalf("Validation failed: %v", err)
     }
 
-    // Save the filled form
-    if err := processor.Save("output.pdf"); err != nil {
-        log.Fatalf("Failed to save form: %v", err)
+    // Create upload configuration
+    uploadConfig := service.UploadConfig{
+        FileName:         "filled_form.pdf",
+        OrganizationalID: "org123",
+        BranchID:         "branch456",
+        CreatedBy:        "system",
     }
+
+    // Upload the filled form
+    ctx := context.Background()
+    response, err := processor.Upload(ctx, uploadConfig)
+    if err != nil {
+        log.Fatalf("Failed to upload form: %v", err)
+    }
+
+    log.Printf("Form uploaded successfully! Download URL: %s", response.FileDownloadUri)
 }
 ```
 
@@ -88,13 +111,14 @@ processor, err := pdfprocessor.NewForm(inputPath string, opts ...Option)
 
 - `WithValidation()`: Enables validation when setting field values
 - `WithLogger(logger *log.Logger)`: Sets a custom logger for the form processor
+- `WithUploader(uploader service.Uploader)`: Sets the uploader service for direct upload functionality
 
 ### Main Methods
 
 - `SetField(name string, value interface{}) error`: Set a single field value
 - `SetFields(fields map[string]interface{}) error`: Set multiple field values
 - `Validate() error`: Validate all form fields
-- `Save(outputPath string) error`: Save the filled form to a new PDF
+- `Upload(ctx context.Context, config service.UploadConfig) (*service.UploadResponse, error)`: Upload the filled form
 
 ### Field Types
 
@@ -103,6 +127,14 @@ The package supports three types of form fields:
 - `Boolean`: For checkboxes and radio buttons
 - `Choice`: For dropdown menus and list selections
 
+### Upload Configuration
+
+The `UploadConfig` struct allows you to specify:
+- `FileName`: Name of the file to be uploaded
+- `OrganizationalID`: Organization identifier
+- `BranchID`: Branch identifier
+- `CreatedBy`: User or system identifier
+
 ## Error Handling
 
 The package provides detailed error messages for:
@@ -110,7 +142,8 @@ The package provides detailed error messages for:
 - Invalid field type
 - Required field validation
 - Invalid choice options
-- File operations
+- Upload failures
+- Configuration errors
 
 ## Contributing
 
