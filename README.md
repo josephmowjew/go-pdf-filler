@@ -27,7 +27,7 @@ A Go package for programmatically filling PDF forms with support for validation,
 ## Installation
 
 ```bash
-go get github.com/josephmowjew/go-pdf-filler@v0.1.1
+go get gitlab.lyvepulse.com:lyvepulse/go-pdf-filler@v0.1.1
 ```
 
 ## Usage
@@ -40,8 +40,8 @@ package main
 import (
     "context"
     "log"
-    "github.com/josephmowjew/go-pdf-filler/pdfprocessor"
-    service "github.com/josephmowjew/go-pdf-filler/pdfprocessor/services"
+    "gitlab.lyvepulse.com:lyvepulse/go-pdf-filler/pdfprocessor"
+    service "gitlab.lyvepulse.com:lyvepulse/go-pdf-filler/pdfprocessor/services"
 )
 
 func main() {

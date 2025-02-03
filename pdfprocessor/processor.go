@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/desertbit/fillpdf"
-	service "github.com/josephmowjew/go-pdf-filler/pdfprocessor/services"
+	service "gitlab.lyvepulse.com.lyvepulse/go-pdf-filler/pdfprocessor/services"
 )
 
 // FieldType represents the type of form field in a PDF document.
