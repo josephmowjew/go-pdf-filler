@@ -1,4 +1,4 @@
-module github.com/yourusername/go-pdf-filler
+module github.com/josephmowjew/go-pdf-filler
 
 go 1.22
 
