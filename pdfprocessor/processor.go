@@ -3,13 +3,16 @@
 package pdfprocessor
 
 import (
+	"context"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
 
 	"github.com/desertbit/fillpdf"
+	service "github.com/josephmowjew/go-pdf-filler/pdfprocessor/services"
 )
 
 // FieldType represents the type of form field in a PDF document.
@@ -42,8 +45,9 @@ type PDFForm struct {
 
 // Options configures the behavior of the PDF form processor.
 type Options struct {
-	ValidateOnSet bool        // Whether to validate fields when they are set
-	Logger        *log.Logger // Logger for processing information
+	ValidateOnSet bool             // Whether to validate fields when they are set
+	Logger        *log.Logger      // Logger for processing information
+	Uploader      service.Uploader // Uploader service for direct PDF uploads
 }
 
 // Option is a function that configures Options.
@@ -60,6 +64,13 @@ func WithValidation() Option {
 func WithLogger(logger *log.Logger) Option {
 	return func(o *Options) {
 		o.Logger = logger
+	}
+}
+
+// WithUploader sets the uploader service for the form processor.
+func WithUploader(uploader service.Uploader) Option {
+	return func(o *Options) {
+		o.Uploader = uploader
 	}
 }
 
@@ -253,4 +264,56 @@ func (f *PDFForm) validateField(field Field) error {
 		return fmt.Errorf("required field %s is not set", field.Name)
 	}
 	return nil
+}
+
+// Upload generates the filled PDF and uploads it using the configured uploader service.
+func (f *PDFForm) Upload(ctx context.Context, config service.UploadConfig) (*service.UploadResponse, error) {
+	if f.options.Uploader == nil {
+		return nil, fmt.Errorf("uploader service not configured")
+	}
+
+	// Convert form data to fillpdf.Form
+	formData := make(fillpdf.Form)
+	for name, field := range f.fields {
+		if field.Value == nil {
+			continue
+		}
+
+		switch v := field.Value.(type) {
+		case bool:
+			if v {
+				formData[name] = "On"
+			} else {
+				formData[name] = "Off"
+			}
+		case time.Time:
+			formData[name] = v.Format(time.RFC3339)
+		default:
+			formData[name] = fmt.Sprint(v)
+		}
+	}
+
+	// Create a temporary file for fillpdf (it requires file paths)
+	tempOutput := "temp_output.pdf"
+	if err := fillpdf.Fill(formData, f.inputPath, tempOutput); err != nil {
+		return nil, fmt.Errorf("failed to fill PDF: %w", err)
+	}
+
+	// Read the temporary file
+	data, err := os.ReadFile(tempOutput)
+	if err != nil {
+		os.Remove(tempOutput) // Clean up
+		return nil, fmt.Errorf("failed to read filled PDF: %w", err)
+	}
+
+	// Clean up the temporary file
+	os.Remove(tempOutput)
+
+	// Upload the filled PDF
+	response, err := f.options.Uploader.Upload(ctx, data, config)
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload PDF: %w", err)
+	}
+
+	return response, nil
 }

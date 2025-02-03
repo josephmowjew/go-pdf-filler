@@ -2,16 +2,26 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/josephmowjew/go-pdf-filler/pdfprocessor"
+	service "github.com/josephmowjew/go-pdf-filler/pdfprocessor/services"
 )
 
 func main() {
-	// Initialize the PDF form processor
+	// Create an uploader instance
+	uploaderConfig := service.Config{
+		UploadBaseURL: "https://your-upload-service.com/api/upload",
+		BearerToken:   "your-bearer-token",
+	}
+	uploader := service.NewUploader(uploaderConfig)
+
+	// Initialize the PDF form processor with uploader
 	processor, err := pdfprocessor.NewForm("form.pdf",
 		pdfprocessor.WithValidation(),
 		pdfprocessor.WithLogger(log.Default()),
+		pdfprocessor.WithUploader(uploader),
 	)
 	if err != nil {
 		log.Fatalf("Failed to create form: %v", err)
@@ -43,10 +53,20 @@ func main() {
 		log.Fatalf("Validation failed: %v", err)
 	}
 
-	// Save the filled form
-	if err := processor.Save("output.pdf"); err != nil {
-		log.Fatalf("Failed to save form: %v", err)
+	// Create upload configuration
+	uploadConfig := service.UploadConfig{
+		FileName:         "vehicle_registration.pdf",
+		OrganizationalID: "org123",
+		BranchID:         "branch456",
+		CreatedBy:        "system",
 	}
 
-	log.Println("Form processed successfully!")
+	// Upload the filled form
+	ctx := context.Background()
+	response, err := processor.Upload(ctx, uploadConfig)
+	if err != nil {
+		log.Fatalf("Failed to upload form: %v", err)
+	}
+
+	log.Printf("Form uploaded successfully! Download URL: %s", response.FileDownloadUri)
 }
