@@ -4,7 +4,7 @@ package main
 import (
 	"log"
 
-	"github.com/yourusername/pdfprocessor/pdfprocessor"
+	"github.com/yourusername/go-pdf-filler/pdfprocessor"
 )
 
 func main() {
