@@ -12,8 +12,8 @@ import (
 func main() {
 	// Create an uploader instance
 	uploaderConfig := service.Config{
-		UploadBaseURL: "https://your-upload-service.com/api/upload",
-		BearerToken:   "your-bearer-token",
+		UploadBaseURL: "https://staging-storage.lyvepulse.com/storage/files",
+		BearerToken:   "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJuby1yZXBseUBvcHNzaWZ5LmNvbSIsInVzZXJuYW1lIjoibm8tcmVwbHlAb3Bzc2lmeS5jb20iLCJlbXBsb3llZUlkIjoibm8tcmVwbHlAb3Bzc2lmeS5jb20iLCJmaXJzdE5hbWUiOiJTWVNURU0iLCJsYXN0TmFtZSI6IlNZU1RFTSIsInBob25lTnVtYmVyIjoiODc2NzUyMzQyIiwiZW5hYmxlZCI6dHJ1ZSwicGVuZGluZ1Jlc2V0IjpmYWxzZSwicm9sZXMiOlt7InJvbGVJZCI6IlNZU19BRE1JTiIsImJyYW5jaElkIjoiQlItMTAwMiIsIm9yZ2FuaXNhdGlvbmFsSWQiOiI1NDMyMSJ9XSwiaWF0IjoxNzM4NjEwNTg2LCJleHAiOjE3Mzg2MzkzODZ9.KKVqII6bXB01aX2QVmV2eGO9c9Ec3nK-MoB6Jq4GxDXB-w-EZLGl2O3Xyrth9RjU",
 	}
 	uploader := service.NewUploader(uploaderConfig)
 
@@ -56,8 +56,8 @@ func main() {
 	// Create upload configuration
 	uploadConfig := service.UploadConfig{
 		FileName:         "vehicle_registration.pdf",
-		OrganizationalID: "org123",
-		BranchID:         "branch456",
+		OrganizationalID: "54321",
+		BranchID:         "BR-1002",
 		CreatedBy:        "system",
 	}
 
