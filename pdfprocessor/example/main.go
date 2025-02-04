@@ -17,14 +17,24 @@ func main() {
 	}
 	uploader := service.NewUploader(uploaderConfig)
 
-	// Initialize the PDF form processor with uploader
-	processor, err := pdfprocessor.NewForm("form.pdf",
+	// Example 1: Using a local file
+	// processorLocal, err := pdfprocessor.NewForm("form.pdf",
+	// 	pdfprocessor.WithValidation(),
+	// 	pdfprocessor.WithLogger(log.Default()),
+	// 	pdfprocessor.WithUploader(uploader),
+	// )
+	// if err != nil {
+	// 	log.Fatalf("Failed to create form from local file: %v", err)
+	// }
+
+	// Example 2: Using a URL
+	processorURL, err := pdfprocessor.NewFormFromURL("https://www.txdmv.gov/sites/default/files/form_files/130-U.pdf",
 		pdfprocessor.WithValidation(),
 		pdfprocessor.WithLogger(log.Default()),
 		pdfprocessor.WithUploader(uploader),
 	)
 	if err != nil {
-		log.Fatalf("Failed to create form: %v", err)
+		log.Fatalf("Failed to create form from URL: %v", err)
 	}
 
 	// Define field values to be set
@@ -42,6 +52,9 @@ func main() {
 		"Registration Purposes Only":      true,
 		"Individual":                      true,
 	}
+
+	// Using the URL-based processor for this example
+	processor := processorURL
 
 	// Set all fields
 	if err := processor.SetFields(fields); err != nil {

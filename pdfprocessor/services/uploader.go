@@ -39,6 +39,25 @@ func NewUploader(config Config) Uploader {
 	}
 }
 
+// Custom error types for better error handling
+type HTTPError struct {
+	StatusCode int
+	Message    string
+}
+
+func (e *HTTPError) Error() string {
+	switch e.StatusCode {
+	case 401:
+		return "Authentication failed: Bearer token is invalid or expired"
+	case 403:
+		return "Authorization failed: Insufficient permissions to upload file"
+	case 520:
+		return "Server error: Unable to process upload request (possibly due to invalid or expired authentication)"
+	default:
+		return fmt.Sprintf("Upload failed with status %d: %s", e.StatusCode, e.Message)
+	}
+}
+
 // Update the Upload method to return the full response
 func (u *httpUploader) Upload(ctx context.Context, data []byte, config UploadConfig) (*UploadResponse, error) {
 	if err := config.Validate(); err != nil {
@@ -79,7 +98,7 @@ func (u *httpUploader) Upload(ctx context.Context, data []byte, config UploadCon
 		return nil, fmt.Errorf("failed to close multipart writer: %w", err)
 	}
 
-	// Create request with properly formatted URL - remove /upload from path
+	// Create request
 	uploadURL := fmt.Sprintf("%s?organisationalId=%s&branchId=%s&createdBy=%s&authenticate=false",
 		u.baseURL,
 		config.OrganizationalID,
@@ -98,27 +117,49 @@ func (u *httpUploader) Upload(ctx context.Context, data []byte, config UploadCon
 	// Send request
 	resp, err := u.client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		return nil, fmt.Errorf("network error while uploading: %w", err)
 	}
 	defer resp.Body.Close()
 
-	// Read and log the raw response for debugging
+	// Read response body
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	// Log the raw response
-	fmt.Printf("Raw server response: %s\n", string(respBody))
+	// Log the raw response for debugging
+	log.Printf("Server response status: %d", resp.StatusCode)
+	log.Printf("Server response body: %s", string(respBody))
 
+	// Handle different status codes
 	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("upload failed with status %d: %s", resp.StatusCode, string(respBody))
+		var errorMessage string
+		// Try to parse error message from response body
+		var errorResponse struct {
+			Message string `json:"message"`
+			Error   string `json:"error"`
+		}
+		if err := json.Unmarshal(respBody, &errorResponse); err == nil {
+			if errorResponse.Message != "" {
+				errorMessage = errorResponse.Message
+			} else if errorResponse.Error != "" {
+				errorMessage = errorResponse.Error
+			}
+		}
+		if errorMessage == "" {
+			errorMessage = string(respBody)
+		}
+
+		return nil, &HTTPError{
+			StatusCode: resp.StatusCode,
+			Message:    errorMessage,
+		}
 	}
 
-	// Create new reader from the response body we read
+	// Parse successful response
 	var result UploadResponse
 	if err := json.NewDecoder(bytes.NewReader(respBody)).Decode(&result); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w\nResponse body: %s", err, string(respBody))
+		return nil, fmt.Errorf("failed to decode successful response: %w\nResponse body: %s", err, string(respBody))
 	}
 
 	return &result, nil

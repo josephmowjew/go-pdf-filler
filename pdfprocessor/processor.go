@@ -5,9 +5,12 @@ package pdfprocessor
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"time"
 
@@ -40,6 +43,7 @@ type Field struct {
 type PDFForm struct {
 	fields    map[string]Field
 	inputPath string
+	inputURL  string
 	options   Options
 }
 
@@ -92,6 +96,59 @@ func NewForm(inputPath string, opts ...Option) (*PDFForm, error) {
 	if err := form.loadFields(); err != nil {
 		return nil, fmt.Errorf("failed to load form fields: %w", err)
 	}
+
+	return form, nil
+}
+
+// NewFormFromURL creates a new PDFForm instance from a URL with the specified options.
+func NewFormFromURL(url string, opts ...Option) (*PDFForm, error) {
+	// Download the file to a temporary location
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to download PDF: %w", err)
+	}
+	defer resp.Body.Close()
+
+	// Create a temporary file
+	tmpFile, err := os.CreateTemp("", "pdf-form-*.pdf")
+	if err != nil {
+		return nil, fmt.Errorf("failed to create temporary file: %w", err)
+	}
+
+	// Copy the response body to the temporary file
+	_, err = io.Copy(tmpFile, resp.Body)
+	if err != nil {
+		tmpFile.Close()
+		os.Remove(tmpFile.Name())
+		return nil, fmt.Errorf("failed to save PDF to temporary file: %w", err)
+	}
+	tmpFile.Close()
+
+	options := Options{
+		Logger: log.Default(),
+	}
+	for _, opt := range opts {
+		opt(&options)
+	}
+
+	form := &PDFForm{
+		inputPath: tmpFile.Name(),
+		inputURL:  url,
+		fields:    make(map[string]Field),
+		options:   options,
+	}
+
+	if err := form.loadFields(); err != nil {
+		os.Remove(tmpFile.Name())
+		return nil, fmt.Errorf("failed to load form fields: %w", err)
+	}
+
+	// Add cleanup function to the form
+	runtime.SetFinalizer(form, func(f *PDFForm) {
+		if f.inputURL != "" && f.inputPath != "" {
+			os.Remove(f.inputPath)
+		}
+	})
 
 	return form, nil
 }
