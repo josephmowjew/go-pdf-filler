@@ -415,3 +415,41 @@ func (f *PDFForm) PrintFields() {
 		f.options.Logger.Println("----------------")
 	}
 }
+
+// PDFProcessorConfig represents the configuration for the PDF processor
+type PDFProcessorConfig struct {
+	// Upload configuration
+	UploadBaseURL string
+	BearerToken   string
+
+	// Optional configurations
+	ValidateOnSet bool
+	Logger        *log.Logger
+}
+
+// NewPDFProcessor creates a new PDF processor with the given configuration
+func NewPDFProcessor(config PDFProcessorConfig) (*PDFForm, error) {
+	uploader := service.NewUploader(service.Config{
+		UploadBaseURL: config.UploadBaseURL,
+		BearerToken:   config.BearerToken,
+	})
+
+	options := Options{
+		ValidateOnSet: config.ValidateOnSet,
+		Logger:        config.Logger,
+		Uploader:      uploader,
+	}
+
+	return &PDFForm{
+		options: options,
+		fields:  make(map[string]Field),
+	}, nil
+}
+
+// UploadConfig represents the configuration for uploading a filled PDF
+type UploadConfig struct {
+	FileName       string
+	OrganizationID string
+	BranchID       string
+	CreatedBy      string
+}

@@ -10,12 +10,25 @@ import (
 )
 
 func main() {
-	// Create an uploader instance
-	uploaderConfig := service.Config{
+	// Create processor configuration
+	config := pdfprocessor.PDFProcessorConfig{
 		UploadBaseURL: "https://staging-storage.lyvepulse.com/storage/files",
-		BearerToken:   "eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJuby1yZXBseUBvcHNzaWZ5LmNvbSIsInVzZXJuYW1lIjoibm8tcmVwbHlAb3Bzc2lmeS5jb20iLCJlbXBsb3llZUlkIjoibm8tcmVwbHlAb3Bzc2lmeS5jb20iLCJmaXJzdE5hbWUiOiJTWVNURU0iLCJsYXN0TmFtZSI6IlNZU1RFTSIsInBob25lTnVtYmVyIjoiODc2NzUyMzQyIiwiZW5hYmxlZCI6dHJ1ZSwicGVuZGluZ1Jlc2V0IjpmYWxzZSwicm9sZXMiOlt7InJvbGVJZCI6IlNZU19BRE1JTiIsImJyYW5jaElkIjoiQlItMTAwMiIsIm9yZ2FuaXNhdGlvbmFsSWQiOiI1NDMyMSJ9XSwiaWF0IjoxNzM4Njk5NDkyLCJleHAiOjE3Mzg3MjgyOTJ9.6swSzlBbFlRHJHTkIG0IcNbnYbrob6NDynNXRpum7YiGcqd_roHMCKW09Sv2HpnK",
+		BearerToken:   "your-bearer-token",
+		ValidateOnSet: true,
+		Logger:        log.Default(),
 	}
-	uploader := service.NewUploader(uploaderConfig)
+
+	// Initialize the processor
+	processor, err := pdfprocessor.NewPDFProcessor(config)
+	if err != nil {
+		log.Fatalf("Failed to initialize processor: %v", err)
+	}
+
+	// Create an uploader from the processor config
+	uploader := service.NewUploader(service.Config{
+		UploadBaseURL: config.UploadBaseURL,
+		BearerToken:   config.BearerToken,
+	})
 
 	// Example 1: Using a local file
 	// processorLocal, err := pdfprocessor.NewForm("form.pdf",
@@ -54,7 +67,7 @@ func main() {
 	}
 
 	// Using the URL-based processor for this example
-	processor := processorURL
+	processor = processorURL
 
 	// Print all available fields before setting values
 	//processor.PrintFields()
