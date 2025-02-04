@@ -374,3 +374,44 @@ func (f *PDFForm) Upload(ctx context.Context, config service.UploadConfig) (*ser
 
 	return response, nil
 }
+
+// GetFields returns a map of all fields in the PDF form.
+func (f *PDFForm) GetFields() map[string]Field {
+	// Return a copy of the fields map to prevent modification of internal state
+	fields := make(map[string]Field, len(f.fields))
+	for k, v := range f.fields {
+		fields[k] = v
+	}
+	return fields
+}
+
+// PrintFields prints all fields and their properties to the configured logger.
+func (f *PDFForm) PrintFields() {
+	if f.options.Logger == nil {
+		return
+	}
+
+	f.options.Logger.Println("PDF Form Fields:")
+	f.options.Logger.Println("================")
+
+	for name, field := range f.fields {
+		fieldType := "Text"
+		switch field.Type {
+		case Boolean:
+			fieldType = "Boolean"
+		case Choice:
+			fieldType = "Choice"
+		}
+
+		f.options.Logger.Printf("Field: %s\n", name)
+		f.options.Logger.Printf("  Type: %s\n", fieldType)
+		f.options.Logger.Printf("  Required: %v\n", field.Required)
+		if len(field.Options) > 0 {
+			f.options.Logger.Printf("  Options: %v\n", field.Options)
+		}
+		if field.Value != nil {
+			f.options.Logger.Printf("  Current Value: %v\n", field.Value)
+		}
+		f.options.Logger.Println("----------------")
+	}
+}
