@@ -90,6 +90,13 @@ func main() {
     // Ensure cleanup of temporary files
     defer processor.Cleanup()
 
+    // Get and inspect form fields
+    formFields := processor.GetFields()
+    for name, field := range formFields {
+        log.Printf("Found field: %s (Type: %v, Required: %v)\n",
+            name, field.Type, field.Required)
+    }
+
     // Define field values to be set
     fields := map[string]interface{}{
         "Name": "John Doe",
@@ -156,6 +163,7 @@ processor, err := pdfprocessor.NewForm(inputPath string, opts ...Option)
 
 ### Main Methods
 
+- `GetFields() map[string]Field`: Get all available form fields with their properties
 - `SetField(name string, value interface{}) error`: Set a single field value
 - `SetFields(fields map[string]interface{}) error`: Set multiple field values
 - `Validate() error`: Validate all form fields

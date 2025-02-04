@@ -1,4 +1,4 @@
-module gitlab.lyvepulse.com.lyvepulse/go-pdf-filler
+module gitlab.lyvepulse.com/lyvepulse/go-pdf-filler
 
 go 1.22
 
