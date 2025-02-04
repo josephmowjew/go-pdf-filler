@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2024-02-04
+
+### Added
+- Enhanced error handling with custom `HTTPError` type
+- Detailed error messages for authentication and upload failures
+- Automatic temporary file cleanup using runtime finalizer
+- Manual `Cleanup()` method for explicit file cleanup
+- Better logging for upload responses and errors
+
+### Changed
+- Improved error messages for authentication failures
+- Updated example code to use environment variables for bearer token
+- Enhanced temporary file management in `NewFormFromURL`
+- Better handling of HTTP response status codes
+- Updated documentation with security best practices
+
+### Security
+- Removed hardcoded bearer token from example code
+- Added recommendations for secure token management
+- Improved cleanup of temporary files
+- Enhanced error handling for authentication failures
+
 ## [0.1.1] - 2024-02-03
 
 ### Added
@@ -26,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Context support for request cancellation
 - Secure file handling practices
 
-## [0.1.0] - 2025-02-03
+## [0.1.0] - 2024-02-03
 
 ### Added
 - Initial release of the Dynamic PDF Form Filler package

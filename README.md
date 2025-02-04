@@ -15,14 +15,39 @@ A Go package for programmatically filling PDF forms with support for validation,
 - Batch field updates
 - Direct upload functionality
 - Customizable configuration options
+- Automatic temporary file cleanup
+- Enhanced error handling for upload operations
 
 ## Requirements
 
+### Go Version
 - Go 1.22 or later
-- pdftk (PDF Toolkit) installed on your system
-  - For macOS: `brew install pdftk-java`
-  - For Ubuntu/Debian: `sudo apt-get install pdftk`
-  - For other systems: [PDFtk Server](https://www.pdflabs.com/tools/pdftk-server/)
+
+### Required System Dependencies
+
+#### PDFtk Server (Required)
+PDFtk Server is required for PDF form field detection and manipulation:
+- For macOS: `brew install pdftk-java`
+- For Ubuntu/Debian: `sudo apt-get install pdftk`
+- For Windows: Download and install [PDFtk Server](https://www.pdflabs.com/tools/pdftk-server/)
+- For other Linux distributions: Check your package manager or install from [PDFtk Server](https://www.pdflabs.com/tools/pdftk-server/)
+
+#### Required Go Packages
+These will be automatically installed when you run `go get`:
+- github.com/desertbit/fillpdf - For PDF form filling
+- github.com/unidoc/unipdf/v3 - For PDF processing
+- Other dependencies will be handled automatically by Go modules
+
+### Optional Dependencies
+- GhostScript (recommended for better PDF handling)
+  - For macOS: `brew install ghostscript`
+  - For Ubuntu/Debian: `sudo apt-get install ghostscript`
+  - For Windows: Download from [Ghostscript Downloads](https://www.ghostscript.com/releases/gsdnld.html)
+
+### System Requirements
+- Sufficient disk space for temporary file operations
+- Network access for remote PDF fetching and uploading
+- Write permissions in the working directory
 
 ## Installation
 
@@ -40,20 +65,21 @@ package main
 import (
     "context"
     "log"
+    "os"
     "gitlab.lyvepulse.com:lyvepulse/go-pdf-filler/pdfprocessor"
     service "gitlab.lyvepulse.com:lyvepulse/go-pdf-filler/pdfprocessor/services"
 )
 
 func main() {
-    // Create an uploader instance
+    // Create an uploader instance with bearer token from environment
     uploaderConfig := service.Config{
         UploadBaseURL: "https://your-upload-service.com/api/upload",
-        BearerToken:   "your-bearer-token",
+        BearerToken:   os.Getenv("PDF_UPLOADER_TOKEN"), // Get token from environment variable
     }
     uploader := service.NewUploader(uploaderConfig)
 
     // Initialize the PDF form processor with uploader
-    processor, err := pdfprocessor.NewForm("form.pdf",
+    processor, err := pdfprocessor.NewFormFromURL("https://example.com/form.pdf",
         pdfprocessor.WithValidation(),
         pdfprocessor.WithLogger(log.Default()),
         pdfprocessor.WithUploader(uploader),
@@ -61,6 +87,8 @@ func main() {
     if err != nil {
         log.Fatalf("Failed to create form: %v", err)
     }
+    // Ensure cleanup of temporary files
+    defer processor.Cleanup()
 
     // Define field values to be set
     fields := map[string]interface{}{
@@ -88,16 +116,29 @@ func main() {
         CreatedBy:        "system",
     }
 
-    // Upload the filled form
+    // Upload with better error handling
     ctx := context.Background()
     response, err := processor.Upload(ctx, uploadConfig)
     if err != nil {
-        log.Fatalf("Failed to upload form: %v", err)
+        switch e := err.(type) {
+        case *service.HTTPError:
+            log.Fatalf("Upload failed: %s", e.Error())
+        default:
+            log.Fatalf("Unexpected error during upload: %v", err)
+        }
     }
 
     log.Printf("Form uploaded successfully! Download URL: %s", response.FileDownloadUri)
 }
 ```
+
+## Security Considerations
+
+- Never hardcode bearer tokens in your code
+- Use environment variables or secure configuration management for sensitive credentials
+- Always use HTTPS for remote PDF form URLs
+- Implement proper error handling for authentication failures
+- Clean up temporary files using the provided `Cleanup()` method
 
 ## API Documentation
 
