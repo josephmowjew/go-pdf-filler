@@ -10,7 +10,7 @@ import (
 	"mime/multipart"
 	"net/http"
 
-	"gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/types"
+	"github.com/josephmowjew/go-pdf-filler/types"
 )
 
 // Uploader interface defines the contract for uploading PDFs

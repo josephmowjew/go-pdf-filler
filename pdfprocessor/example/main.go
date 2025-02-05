@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/pdfprocessor"
-	service "gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/pdfprocessor/services"
-	"gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/types"
+	"github.com/josephmowjew/go-pdf-filler/pdfprocessor"
+	service "github.com/josephmowjew/go-pdf-filler/pdfprocessor/services"
+	"github.com/josephmowjew/go-pdf-filler/types"
 )
 
 func dumpPDFFields(processor *pdfprocessor.PDFForm, outputPath string) error {

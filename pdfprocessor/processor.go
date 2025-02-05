@@ -16,8 +16,8 @@ import (
 	"unicode"
 
 	"github.com/desertbit/fillpdf"
-	service "gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/pdfprocessor/services"
-	"gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/types"
+	service "github.com/josephmowjew/go-pdf-filler/pdfprocessor/services"
+	"github.com/josephmowjew/go-pdf-filler/types"
 )
 
 // FieldType represents the type of form field in a PDF document.

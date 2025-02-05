@@ -61,7 +61,7 @@ These will be automatically installed when you run `go get`:
 ## Installation
 
 ```bash
-go get gitlab.lyvepulse.com/lyvepulse/go-pdf-filler@v0.1.7
+go get github.com/josephmowjew/go-pdf-filler@v0.1.7
 ```
 
 ## Usage
@@ -75,8 +75,8 @@ import (
     "context"
     "log"
     "os"
-    "gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/pdfprocessor"
-    "gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/types"
+    "github.com/josephmowjew/go-pdf-filler/pdfprocessor"
+    "github.com/josephmowjew/go-pdf-filler/types"
 )
 
 func main() {
