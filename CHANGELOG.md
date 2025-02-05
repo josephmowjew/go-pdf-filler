@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.10] - 2024-02-05
+
+### Changed
+- Migrated repository to GitHub
+- Updated module path to `github.com/josephmowjew/go-pdf-filler`
+- Updated all internal import paths to reflect new module path
+- Refreshed dependency references
+
+### Security
+- Verified dependency integrity after repository migration
+- Updated module authentication checksums
+
 ## [0.1.9] - 2024-02-05
 
 ### Added
