@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/desertbit/fillpdf"
 	service "gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/pdfprocessor/services"
@@ -259,11 +260,22 @@ func (f *PDFForm) SetField(name string, value interface{}) error {
 
 // SetFields sets multiple field values at once.
 func (f *PDFForm) SetFields(fields map[string]interface{}) error {
-	for name, value := range fields {
-		if err := f.SetField(name, value); err != nil {
-			return fmt.Errorf("error setting field %s: %w", name, err)
+	var errors []string
+
+	for searchName, value := range fields {
+		if actualName, found := f.FindMatchingField(searchName); found {
+			if err := f.SetField(actualName, value); err != nil {
+				errors = append(errors, fmt.Sprintf("field '%s': %v", searchName, err))
+			}
+		} else {
+			errors = append(errors, fmt.Sprintf("field '%s' not found", searchName))
 		}
 	}
+
+	if len(errors) > 0 {
+		return fmt.Errorf("failed to set some fields: %s", strings.Join(errors, "; "))
+	}
+
 	return nil
 }
 
@@ -476,21 +488,24 @@ func (c UploadConfig) Validate() error {
 func (f *PDFForm) NormalizeFieldName(name string) string {
 	// Convert to lowercase
 	name = strings.ToLower(name)
-	// Remove extra spaces
-	name = strings.TrimSpace(name)
-	// Replace multiple spaces with single space
+
+	// Replace all whitespace characters (tabs, multiple spaces, etc.) with a single space
 	name = strings.Join(strings.Fields(name), " ")
+
 	// Remove common suffixes
 	name = strings.TrimSuffix(name, " optional")
 	name = strings.TrimSuffix(name, " required")
-	// Remove special characters
+
+	// Remove all special characters except spaces, letters, and numbers
 	name = strings.Map(func(r rune) rune {
-		if r == ' ' || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+		if r == ' ' || unicode.IsLetter(r) || unicode.IsNumber(r) {
 			return r
 		}
 		return -1
 	}, name)
-	return name
+
+	// Final trim of any remaining whitespace
+	return strings.TrimSpace(name)
 }
 
 // ConvertFieldValue converts a value to the appropriate type based on the field type
@@ -535,18 +550,18 @@ func (f *PDFForm) ConvertFieldValue(name string, value interface{}) (interface{}
 	}
 }
 
-// FindMatchingField attempts to find a matching field name using exact or fuzzy matching
+// FindMatchingField attempts to find a matching field name using normalized comparison
 func (f *PDFForm) FindMatchingField(searchName string) (string, bool) {
 	normalized := f.NormalizeFieldName(searchName)
 
-	// Try exact match first
+	// Try exact match first (case-insensitive)
 	for name := range f.fields {
 		if f.NormalizeFieldName(name) == normalized {
 			return name, true
 		}
 	}
 
-	// Try fuzzy match
+	// Try partial match if exact match fails
 	for name := range f.fields {
 		normalizedField := f.NormalizeFieldName(name)
 		if strings.Contains(normalizedField, normalized) ||

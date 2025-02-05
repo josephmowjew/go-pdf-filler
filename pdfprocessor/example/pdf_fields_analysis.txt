@@ -1,0 +1,136 @@
+PDF Form Fields Analysis
+=======================
+
+Found 7 fields:
+
+Field Name: 'Age	 of Dependent'
+Length: 17 characters
+Character Analysis:
+  Position 0: 'A' (ASCII: 65)
+  Position 1: 'g' (ASCII: 103)
+  Position 2: 'e' (ASCII: 101)
+  Position 3: '	' (ASCII: 9)
+  Position 4: ' ' (ASCII: 32)
+  Position 5: 'o' (ASCII: 111)
+  Position 6: 'f' (ASCII: 102)
+  Position 7: ' ' (ASCII: 32)
+  Position 8: 'D' (ASCII: 68)
+  Position 9: 'e' (ASCII: 101)
+  Position 10: 'p' (ASCII: 112)
+  Position 11: 'e' (ASCII: 101)
+  Position 12: 'n' (ASCII: 110)
+  Position 13: 'd' (ASCII: 100)
+  Position 14: 'e' (ASCII: 101)
+  Position 15: 'n' (ASCII: 110)
+  Position 16: 't' (ASCII: 116)
+Type: 0
+Required: false
+
+-------------------
+
+Field Name: 'Name'
+Length: 4 characters
+Character Analysis:
+  Position 0: 'N' (ASCII: 78)
+  Position 1: 'a' (ASCII: 97)
+  Position 2: 'm' (ASCII: 109)
+  Position 3: 'e' (ASCII: 101)
+Type: 0
+Required: false
+
+-------------------
+
+Field Name: 'Dropdown2'
+Length: 9 characters
+Character Analysis:
+  Position 0: 'D' (ASCII: 68)
+  Position 1: 'r' (ASCII: 114)
+  Position 2: 'o' (ASCII: 111)
+  Position 3: 'p' (ASCII: 112)
+  Position 4: 'd' (ASCII: 100)
+  Position 5: 'o' (ASCII: 111)
+  Position 6: 'w' (ASCII: 119)
+  Position 7: 'n' (ASCII: 110)
+  Position 8: '2' (ASCII: 50)
+Type: 2
+Required: false
+Options: [Choice 1 Choice 2 Choice 3 Choice 4]
+
+-------------------
+
+Field Name: 'Option 1'
+Length: 8 characters
+Character Analysis:
+  Position 0: 'O' (ASCII: 79)
+  Position 1: 'p' (ASCII: 112)
+  Position 2: 't' (ASCII: 116)
+  Position 3: 'i' (ASCII: 105)
+  Position 4: 'o' (ASCII: 111)
+  Position 5: 'n' (ASCII: 110)
+  Position 6: ' ' (ASCII: 32)
+  Position 7: '1' (ASCII: 49)
+Type: 1
+Required: false
+Options: [Off On]
+
+-------------------
+
+Field Name: 'Option 2'
+Length: 8 characters
+Character Analysis:
+  Position 0: 'O' (ASCII: 79)
+  Position 1: 'p' (ASCII: 112)
+  Position 2: 't' (ASCII: 116)
+  Position 3: 'i' (ASCII: 105)
+  Position 4: 'o' (ASCII: 111)
+  Position 5: 'n' (ASCII: 110)
+  Position 6: ' ' (ASCII: 32)
+  Position 7: '2' (ASCII: 50)
+Type: 1
+Required: false
+Options: [Off On]
+
+-------------------
+
+Field Name: 'Option 3'
+Length: 8 characters
+Character Analysis:
+  Position 0: 'O' (ASCII: 79)
+  Position 1: 'p' (ASCII: 112)
+  Position 2: 't' (ASCII: 116)
+  Position 3: 'i' (ASCII: 105)
+  Position 4: 'o' (ASCII: 111)
+  Position 5: 'n' (ASCII: 110)
+  Position 6: ' ' (ASCII: 32)
+  Position 7: '3' (ASCII: 51)
+Type: 1
+Required: false
+Options: [Off On]
+
+-------------------
+
+Field Name: 'Name of Dependent'
+Length: 17 characters
+Character Analysis:
+  Position 0: 'N' (ASCII: 78)
+  Position 1: 'a' (ASCII: 97)
+  Position 2: 'm' (ASCII: 109)
+  Position 3: 'e' (ASCII: 101)
+  Position 4: ' ' (ASCII: 32)
+  Position 5: 'o' (ASCII: 111)
+  Position 6: 'f' (ASCII: 102)
+  Position 7: ' ' (ASCII: 32)
+  Position 8: 'D' (ASCII: 68)
+  Position 9: 'e' (ASCII: 101)
+  Position 10: 'p' (ASCII: 112)
+  Position 11: 'e' (ASCII: 101)
+  Position 12: 'n' (ASCII: 110)
+  Position 13: 'd' (ASCII: 100)
+  Position 14: 'e' (ASCII: 101)
+  Position 15: 'n' (ASCII: 110)
+  Position 16: 't' (ASCII: 116)
+Type: 0
+Required: false
+
+-------------------
+

@@ -4,6 +4,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.9] - 2024-02-05
+
+### Added
+- Enhanced field name matching system
+  - Case-insensitive matching
+  - Whitespace normalization
+  - Special character handling
+  - Fuzzy matching capabilities
+- Comprehensive field analysis functionality
+  - Detailed field type detection
+  - Required field identification
+  - Field options enumeration
+  - Current value inspection
+  - Analysis export to file
+- Improved error handling system
+  - Detailed error messages for field matching
+  - Custom error types for different scenarios
+  - Better validation error reporting
+  - Field-specific error context
+
+### Changed
+- Improved field matching algorithm for better accuracy
+- Enhanced error messages with more context
+- Updated documentation with field analysis examples
+- Refined validation system for better error reporting
+- Improved example code with real-world scenarios
+
+### Fixed
+- Field name matching issues with spaces and special characters
+- Case sensitivity problems in field matching
+- Error handling for non-existent fields
+- Validation reporting clarity
+
 ## [0.1.8] - 2024-02-05
 
 ### Changed

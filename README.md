@@ -20,6 +20,12 @@ A Go package for programmatically filling PDF forms with support for validation,
 - Enhanced error handling with custom error types
 - Configurable upload service with metadata support
 - Context-aware operations
+- PDF Field Analysis capabilities:
+  - Field type detection
+  - Required field identification
+  - Field options enumeration
+  - Current value inspection
+  - Detailed field properties export
 
 ## Requirements
 
@@ -134,8 +140,69 @@ func main() {
     }
 
     log.Printf("Form uploaded successfully! Download URL: %s", response.FileDownloadUri)
+
+    // Analyze PDF fields and export to file
+    if err := dumpPDFFields(processor, "pdf_fields_analysis.txt"); err != nil {
+        log.Printf("Warning: Failed to dump fields analysis: %v", err)
+    }
+
+    // Read and display field analysis
+    if analysis, err := os.ReadFile("pdf_fields_analysis.txt"); err == nil {
+        log.Printf("PDF Fields Analysis:\n%s", string(analysis))
+    }
+}
+
+// Helper function to analyze PDF fields
+func dumpPDFFields(form *pdfprocessor.PDFForm, outputPath string) error {
+    var sb strings.Builder
+    fields := form.GetFields()
+    
+    for name, field := range fields {
+        sb.WriteString(fmt.Sprintf("Field: %s\n", name))
+        sb.WriteString(fmt.Sprintf("Type: %v\n", field.Type))
+        sb.WriteString(fmt.Sprintf("Required: %v\n", field.Required))
+        if len(field.Options) > 0 {
+            sb.WriteString(fmt.Sprintf("Options: %v\n", field.Options))
+        }
+        if field.Value != nil {
+            sb.WriteString(fmt.Sprintf("Current Value: %v\n", field.Value))
+        }
+        sb.WriteString("\n-------------------\n\n")
+    }
+    
+    return os.WriteFile(outputPath, []byte(sb.String()), 0644)
 }
 ```
+
+## Field Analysis Output
+
+The field analysis functionality generates a detailed report containing:
+
+```text
+Field: Name of Dependent
+Type: 0
+Required: false
+Current Value: John Doe
+-------------------
+
+Field: Age of Dependent
+Type: 0
+Required: false
+Current Value: 25
+-------------------
+
+Field: Dropdown2
+Type: 2
+Required: false
+Options: [Choice 1 Choice 2 Choice 3]
+Current Value: Choice 1
+-------------------
+```
+
+Field Types:
+- Type 0: Text Field
+- Type 1: Boolean Field (Checkbox/Radio)
+- Type 2: Choice Field (Dropdown/List)
 
 ## Security Considerations
 
