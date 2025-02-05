@@ -16,6 +16,7 @@ import (
 
 	"github.com/desertbit/fillpdf"
 	service "gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/pdfprocessor/services"
+	"gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/types"
 )
 
 // FieldType represents the type of form field in a PDF document.
@@ -324,7 +325,7 @@ func (f *PDFForm) validateField(field Field) error {
 }
 
 // Upload generates the filled PDF and uploads it using the configured uploader service.
-func (f *PDFForm) Upload(ctx context.Context, config service.UploadConfig) (*service.UploadResponse, error) {
+func (f *PDFForm) Upload(ctx context.Context, config types.UploadConfig) (*types.UploadResponse, error) {
 	if f.options.Uploader == nil {
 		return nil, fmt.Errorf("uploader service not configured")
 	}
@@ -448,8 +449,25 @@ func NewPDFProcessor(config PDFProcessorConfig) (*PDFForm, error) {
 
 // UploadConfig represents the configuration for uploading a filled PDF
 type UploadConfig struct {
-	FileName       string
-	OrganizationID string
-	BranchID       string
-	CreatedBy      string
+	FileName         string
+	OrganizationalID string
+	BranchID         string
+	CreatedBy        string
+}
+
+// Validate checks if the upload configuration is valid
+func (c UploadConfig) Validate() error {
+	if c.FileName == "" {
+		return fmt.Errorf("filename is required")
+	}
+	if c.OrganizationalID == "" {
+		return fmt.Errorf("organizational ID is required")
+	}
+	if c.BranchID == "" {
+		return fmt.Errorf("branch ID is required")
+	}
+	if c.CreatedBy == "" {
+		return fmt.Errorf("creator is required")
+	}
+	return nil
 }

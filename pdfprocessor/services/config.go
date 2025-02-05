@@ -10,14 +10,6 @@ type Config struct {
 	BearerToken   string
 }
 
-// UploadConfig contains configuration for a single upload
-type UploadConfig struct {
-	OrganizationalID string
-	BranchID         string
-	CreatedBy        string
-	FileName         string
-}
-
 // Config validation
 func (c Config) Validate() error {
 	if c.UploadBaseURL == "" {
@@ -25,23 +17,6 @@ func (c Config) Validate() error {
 	}
 	if c.BearerToken == "" {
 		return fmt.Errorf("bearer token is required")
-	}
-	return nil
-}
-
-// UploadConfig validation
-func (c UploadConfig) Validate() error {
-	if c.OrganizationalID == "" {
-		return fmt.Errorf("organizational ID is required")
-	}
-	if c.BranchID == "" {
-		return fmt.Errorf("branch ID is required")
-	}
-	if c.CreatedBy == "" {
-		return fmt.Errorf("creator is required")
-	}
-	if c.FileName == "" {
-		return fmt.Errorf("filename is required")
 	}
 	return nil
 }

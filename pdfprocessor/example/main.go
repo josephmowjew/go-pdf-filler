@@ -7,6 +7,7 @@ import (
 
 	"gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/pdfprocessor"
 	service "gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/pdfprocessor/services"
+	"gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/types"
 )
 
 func main() {
@@ -70,7 +71,7 @@ func main() {
 	processor = processorURL
 
 	// Print all available fields before setting values
-	//processor.PrintFields()
+	processor.PrintFields()
 
 	// Alternatively, you can get the fields and process them yourself
 	formFields := processor.GetFields()
@@ -89,8 +90,8 @@ func main() {
 		log.Fatalf("Validation failed: %v", err)
 	}
 
-	// Create upload configuration
-	uploadConfig := service.UploadConfig{
+	// Create upload configuration using the types package
+	uploadConfig := types.UploadConfig{
 		FileName:         "vehicle_registration.pdf",
 		OrganizationalID: "54321",
 		BranchID:         "BR-1002",
@@ -105,4 +106,10 @@ func main() {
 	}
 
 	log.Printf("Form uploaded successfully! Download URL: %s", response.FileDownloadUri)
+
+	// Example of saving to a local file instead of uploading
+	if err := processor.Save("filled_form.pdf"); err != nil {
+		log.Fatalf("Failed to save form locally: %v", err)
+	}
+	log.Println("Form saved successfully to filled_form.pdf")
 }

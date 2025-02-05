@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.7] - 2024-02-05
+
+### Changed
+- Moved `types` package to top-level directory for better accessibility
+- Reorganized project structure for improved modularity
+- Updated import paths to reflect new package organization
+
+### Added
+- Better package documentation for external usage
+- Improved module organization for better dependency management
+
 ## [0.1.6] - 2024-02-04
 
 ### Fixed
