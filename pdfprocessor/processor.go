@@ -449,10 +449,10 @@ func NewPDFProcessor(config PDFProcessorConfig) (*PDFForm, error) {
 
 // UploadConfig represents the configuration for uploading a filled PDF
 type UploadConfig struct {
-	FileName         string
-	OrganizationalID string
-	BranchID         string
-	CreatedBy        string
+	FileName       string
+	OrganizationID string
+	BranchID       string
+	CreatedBy      string
 }
 
 // Validate checks if the upload configuration is valid
@@ -460,7 +460,7 @@ func (c UploadConfig) Validate() error {
 	if c.FileName == "" {
 		return fmt.Errorf("filename is required")
 	}
-	if c.OrganizationalID == "" {
+	if c.OrganizationID == "" {
 		return fmt.Errorf("organizational ID is required")
 	}
 	if c.BranchID == "" {
@@ -470,4 +470,90 @@ func (c UploadConfig) Validate() error {
 		return fmt.Errorf("creator is required")
 	}
 	return nil
+}
+
+// NormalizeFieldName normalizes a field name for comparison
+func (f *PDFForm) NormalizeFieldName(name string) string {
+	// Convert to lowercase
+	name = strings.ToLower(name)
+	// Remove extra spaces
+	name = strings.TrimSpace(name)
+	// Replace multiple spaces with single space
+	name = strings.Join(strings.Fields(name), " ")
+	// Remove common suffixes
+	name = strings.TrimSuffix(name, " optional")
+	name = strings.TrimSuffix(name, " required")
+	// Remove special characters
+	name = strings.Map(func(r rune) rune {
+		if r == ' ' || (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+			return r
+		}
+		return -1
+	}, name)
+	return name
+}
+
+// ConvertFieldValue converts a value to the appropriate type based on the field type
+func (f *PDFForm) ConvertFieldValue(name string, value interface{}) (interface{}, error) {
+	field, exists := f.fields[name]
+	if !exists {
+		return nil, fmt.Errorf("field %s not found", name)
+	}
+
+	switch field.Type {
+	case Boolean:
+		switch v := value.(type) {
+		case bool:
+			return v, nil
+		case string:
+			v = strings.ToLower(strings.TrimSpace(v))
+			if v == "true" || v == "yes" || v == "1" || v == "on" {
+				return true, nil
+			}
+			if v == "false" || v == "no" || v == "0" || v == "off" {
+				return false, nil
+			}
+			return false, fmt.Errorf("invalid boolean value for field %s: %v", name, value)
+		default:
+			return false, fmt.Errorf("unsupported value type for boolean field %s: %T", name, value)
+		}
+	case Text:
+		switch v := value.(type) {
+		case string:
+			return v, nil
+		default:
+			return fmt.Sprintf("%v", value), nil
+		}
+	case Choice:
+		strVal := fmt.Sprintf("%v", value)
+		if !isValidOption(strVal, field.Options) {
+			return nil, fmt.Errorf("invalid option for field %s: %s", name, strVal)
+		}
+		return strVal, nil
+	default:
+		return fmt.Sprintf("%v", value), nil
+	}
+}
+
+// FindMatchingField attempts to find a matching field name using exact or fuzzy matching
+func (f *PDFForm) FindMatchingField(searchName string) (string, bool) {
+	normalized := f.NormalizeFieldName(searchName)
+
+	// Try exact match first
+	for name := range f.fields {
+		if f.NormalizeFieldName(name) == normalized {
+			return name, true
+		}
+	}
+
+	// Try fuzzy match
+	for name := range f.fields {
+		normalizedField := f.NormalizeFieldName(name)
+		if strings.Contains(normalizedField, normalized) ||
+			strings.Contains(normalized, normalizedField) {
+			return name, true
+		}
+	}
+
+	return "", false
 }

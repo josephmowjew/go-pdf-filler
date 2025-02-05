@@ -4,10 +4,10 @@ import "fmt"
 
 // UploadConfig represents the configuration for uploading a filled PDF
 type UploadConfig struct {
-	FileName         string
-	OrganizationalID string
-	BranchID         string
-	CreatedBy        string
+	FileName       string
+	OrganizationID string
+	BranchID       string
+	CreatedBy      string
 }
 
 // Validate checks if the upload configuration is valid
@@ -15,7 +15,7 @@ func (c UploadConfig) Validate() error {
 	if c.FileName == "" {
 		return fmt.Errorf("filename is required")
 	}
-	if c.OrganizationalID == "" {
+	if c.OrganizationID == "" {
 		return fmt.Errorf("organizational ID is required")
 	}
 	if c.BranchID == "" {

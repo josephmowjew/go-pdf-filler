@@ -39,7 +39,7 @@ func (u *httpUploader) Upload(ctx context.Context, data []byte, config types.Upl
 		return nil, &ErrInvalidConfig{Message: err.Error()}
 	}
 
-	log.Printf("Uploading file %s for org %s", config.FileName, config.OrganizationalID)
+	log.Printf("Uploading file %s for org %s", config.FileName, config.OrganizationID)
 
 	// Create multipart form
 	body := &bytes.Buffer{}
@@ -56,7 +56,7 @@ func (u *httpUploader) Upload(ctx context.Context, data []byte, config types.Upl
 
 	// Add metadata
 	metadata := map[string]string{
-		"organizationalId": config.OrganizationalID,
+		"organizationalId": config.OrganizationID,
 		"branchId":         config.BranchID,
 		"createdBy":        config.CreatedBy,
 	}
@@ -76,7 +76,7 @@ func (u *httpUploader) Upload(ctx context.Context, data []byte, config types.Upl
 	// Create request with properly formatted URL - remove /upload from path
 	uploadURL := fmt.Sprintf("%s?organisationalId=%s&branchId=%s&createdBy=%s&authenticate=false",
 		u.baseURL,
-		config.OrganizationalID,
+		config.OrganizationID,
 		config.BranchID,
 		config.CreatedBy,
 	)

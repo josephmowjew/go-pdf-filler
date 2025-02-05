@@ -92,10 +92,10 @@ func main() {
 
 	// Create upload configuration using the types package
 	uploadConfig := types.UploadConfig{
-		FileName:         "vehicle_registration.pdf",
-		OrganizationalID: "54321",
-		BranchID:         "BR-1002",
-		CreatedBy:        "system",
+		FileName:       "vehicle_registration.pdf",
+		OrganizationID: "54321",
+		BranchID:       "BR-1002",
+		CreatedBy:      "system",
 	}
 
 	// Upload the filled form

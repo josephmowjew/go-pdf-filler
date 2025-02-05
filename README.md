@@ -13,10 +13,13 @@ A Go package for programmatically filling PDF forms with support for validation,
 - Configurable logging
 - Type-safe field setting
 - Batch field updates
-- Direct upload functionality
-- Customizable configuration options
+- Direct upload functionality with multipart form support
+- Field value normalization and type conversion
+- Fuzzy field name matching
 - Automatic temporary file cleanup
-- Enhanced error handling for upload operations
+- Enhanced error handling with custom error types
+- Configurable upload service with metadata support
+- Context-aware operations
 
 ## Requirements
 
@@ -52,12 +55,12 @@ These will be automatically installed when you run `go get`:
 ## Installation
 
 ```bash
-go get gitlab.lyvepulse.com:lyvepulse/go-pdf-filler@v0.1.1
+go get gitlab.lyvepulse.com/lyvepulse/go-pdf-filler@v0.1.7
 ```
 
 ## Usage
 
-Here's a basic example of how to use the package with upload functionality:
+Here's a complete example demonstrating the main features:
 
 ```go
 package main
@@ -66,72 +69,67 @@ import (
     "context"
     "log"
     "os"
-    "gitlab.lyvepulse.com:lyvepulse/go-pdf-filler/pdfprocessor"
-    service "gitlab.lyvepulse.com:lyvepulse/go-pdf-filler/pdfprocessor/services"
+    "gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/pdfprocessor"
+    "gitlab.lyvepulse.com/lyvepulse/go-pdf-filler/types"
 )
 
 func main() {
-    // Create an uploader instance with bearer token from environment
-    uploaderConfig := service.Config{
+    // Initialize with configuration
+    config := pdfprocessor.PDFProcessorConfig{
         UploadBaseURL: "https://your-upload-service.com/api/upload",
-        BearerToken:   os.Getenv("PDF_UPLOADER_TOKEN"), // Get token from environment variable
+        BearerToken:   os.Getenv("PDF_UPLOADER_TOKEN"),
+        ValidateOnSet: true,
+        Logger:        log.Default(),
     }
-    uploader := service.NewUploader(uploaderConfig)
 
-    // Initialize the PDF form processor with uploader
-    processor, err := pdfprocessor.NewFormFromURL("https://example.com/form.pdf",
+    // Create a new processor
+    processor, err := pdfprocessor.NewPDFProcessor(config)
+    if err != nil {
+        log.Fatalf("Failed to initialize processor: %v", err)
+    }
+
+    // Create a form from URL with options
+    form, err := pdfprocessor.NewFormFromURL("https://example.com/form.pdf",
         pdfprocessor.WithValidation(),
         pdfprocessor.WithLogger(log.Default()),
-        pdfprocessor.WithUploader(uploader),
     )
     if err != nil {
         log.Fatalf("Failed to create form: %v", err)
     }
-    // Ensure cleanup of temporary files
-    defer processor.Cleanup()
 
-    // Get and inspect form fields
-    formFields := processor.GetFields()
-    for name, field := range formFields {
-        log.Printf("Found field: %s (Type: %v, Required: %v)\n",
-            name, field.Type, field.Required)
-    }
+    // Print available fields
+    form.PrintFields()
 
-    // Define field values to be set
+    // Set multiple fields with automatic type conversion
     fields := map[string]interface{}{
-        "Name": "John Doe",
-        "Age": "30",
-        "IsEmployed": true,
-        "Department": "Engineering",
+        "Name":        "John Doe",
+        "Age":         "30",
+        "IsEmployed":  true,
+        "Department":  "Engineering",
+        "Title Only": true,
     }
 
-    // Set all fields
-    if err := processor.SetFields(fields); err != nil {
+    if err := form.SetFields(fields); err != nil {
         log.Fatalf("Error setting fields: %v", err)
     }
 
-    // Validate the form
-    if err := processor.Validate(); err != nil {
-        log.Fatalf("Validation failed: %v", err)
+    // Configure upload with metadata
+    uploadConfig := types.UploadConfig{
+        FileName:        "filled_form.pdf",
+        OrganizationID:  "org123",
+        BranchID:        "branch456",
+        CreatedBy:       "system",
     }
 
-    // Create upload configuration
-    uploadConfig := service.UploadConfig{
-        FileName:         "filled_form.pdf",
-        OrganizationalID: "org123",
-        BranchID:         "branch456",
-        CreatedBy:        "system",
-    }
-
-    // Upload with better error handling
+    // Upload with context and handle response
     ctx := context.Background()
-    response, err := processor.Upload(ctx, uploadConfig)
+    response, err := form.Upload(ctx, uploadConfig)
     if err != nil {
         switch e := err.(type) {
         case *service.HTTPError:
             log.Fatalf("Upload failed: %s", e.Error())
         default:
-            log.Fatalf("Unexpected error during upload: %v", err)
+            log.Fatalf("Unexpected error: %v", err)
         }
     }
 
@@ -141,58 +139,82 @@ func main() {
 
 ## Security Considerations
 
-- Never hardcode bearer tokens in your code
-- Use environment variables or secure configuration management for sensitive credentials
-- Always use HTTPS for remote PDF form URLs
-- Implement proper error handling for authentication failures
-- Clean up temporary files using the provided `Cleanup()` method
+- Store bearer tokens in environment variables
+- Use HTTPS for remote PDF form URLs
+- Implement proper error handling
+- Use context for request cancellation
+- Clean up temporary files using `Cleanup()`
+- Validate upload configurations
+- Handle sensitive metadata appropriately
 
 ## API Documentation
 
-### Creating a New Form Processor
+### Processor Configuration
 
 ```go
-processor, err := pdfprocessor.NewForm(inputPath string, opts ...Option)
+type PDFProcessorConfig struct {
+    UploadBaseURL string       // Base URL for file uploads
+    BearerToken   string       // Authentication token
+    ValidateOnSet bool         // Enable validation on field set
+    Logger        *log.Logger  // Custom logger
+}
 ```
 
-### Configuration Options
+### Form Creation Options
 
-- `WithValidation()`: Enables validation when setting field values
-- `WithLogger(logger *log.Logger)`: Sets a custom logger for the form processor
-- `WithUploader(uploader service.Uploader)`: Sets the uploader service for direct upload functionality
+```go
+// Create from URL with options
+form, err := pdfprocessor.NewFormFromURL(url,
+    pdfprocessor.WithValidation(),
+    pdfprocessor.WithLogger(logger),
+)
 
-### Main Methods
+// Create from local file
+form, err := pdfprocessor.NewForm(filepath,
+    pdfprocessor.WithValidation(),
+    pdfprocessor.WithLogger(logger),
+)
+```
 
-- `GetFields() map[string]Field`: Get all available form fields with their properties
-- `SetField(name string, value interface{}) error`: Set a single field value
-- `SetFields(fields map[string]interface{}) error`: Set multiple field values
-- `Validate() error`: Validate all form fields
-- `Upload(ctx context.Context, config service.UploadConfig) (*service.UploadResponse, error)`: Upload the filled form
+### Field Operations
 
-### Field Types
-
-The package supports three types of form fields:
-- `Text`: For text input fields
-- `Boolean`: For checkboxes and radio buttons
-- `Choice`: For dropdown menus and list selections
+- `GetFields() map[string]Field`: Get all form fields
+- `SetField(name string, value interface{}) error`: Set single field
+- `SetFields(fields map[string]interface{}) error`: Set multiple fields
+- `PrintFields()`: Display all fields and properties
+- `FindMatchingField(searchName string) (string, bool)`: Fuzzy field search
+- `ConvertFieldValue(name string, value interface{}) (interface{}, error)`: Type conversion
+- `Validate() error`: Validate all fields
 
 ### Upload Configuration
 
-The `UploadConfig` struct allows you to specify:
-- `FileName`: Name of the file to be uploaded
-- `OrganizationalID`: Organization identifier
-- `BranchID`: Branch identifier
-- `CreatedBy`: User or system identifier
+```go
+type UploadConfig struct {
+    FileName        string
+    OrganizationID  string
+    BranchID        string
+    CreatedBy       string
+}
+```
+
+### Upload Response
+
+```go
+type UploadResponse struct {
+    FileName        string
+    FileDownloadUri string
+    FileType        string
+    Size            int64
+}
+```
 
 ## Error Handling
 
-The package provides detailed error messages for:
-- Field not found
-- Invalid field type
-- Required field validation
-- Invalid choice options
-- Upload failures
-- Configuration errors
+The package provides custom error types for better error handling:
+- `ErrInvalidConfig`: Configuration validation errors
+- `HTTPError`: Upload and network-related errors
+- Field validation errors
+- Type conversion errors
 
 ## Contributing
 
