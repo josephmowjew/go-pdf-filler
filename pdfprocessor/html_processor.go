@@ -13,7 +13,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
-	"github.com/josephmowjew/go-pdf-filler/types"
+	"github.com/josephmowjew/go-form-processor/types"
 )
 
 // HTMLForm represents an HTML form with its fields and configuration

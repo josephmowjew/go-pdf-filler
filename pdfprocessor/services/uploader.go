@@ -10,7 +10,7 @@ import (
 	"mime/multipart"
 	"net/http"
 
-	"github.com/josephmowjew/go-pdf-filler/types"
+	"github.com/josephmowjew/go-form-processor/types"
 )
 
 // Uploader interface defines the contract for uploading PDFs

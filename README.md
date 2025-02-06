@@ -1,6 +1,6 @@
-# go-pdf-filler
+# go-form-processor
 
-A Go package for programmatically filling PDF forms with support for validation, logging, and multiple field types. This package provides a robust solution for automated PDF form filling with type safety, validation, and direct upload capabilities.
+A Go package for programmatically processing both PDF and HTML forms with support for validation, logging, and multiple field types. This package provides a robust solution for automated form processing with type safety, validation, HTML to PDF conversion, and direct upload capabilities.
 
 ## Features
 
@@ -64,7 +64,7 @@ These will be automatically installed when you run `go get`:
 ## Installation
 
 ```bash
-go get github.com/josephmowjew/go-pdf-filler@v0.1.7
+go get github.com/josephmowjew/go-form-processor@v0.1.7
 ```
 
 ## Usage
@@ -78,8 +78,8 @@ import (
     "context"
     "log"
     "os"
-    "github.com/josephmowjew/go-pdf-filler/pdfprocessor"
-    "github.com/josephmowjew/go-pdf-filler/types"
+    "github.com/josephmowjew/go-form-processor/pdfprocessor"
+    "github.com/josephmowjew/go-form-processor/types"
 )
 
 func main() {

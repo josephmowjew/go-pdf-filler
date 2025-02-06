@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2024-02-06
+
+### Changed
+- Renamed project from `go-pdf-filler` to `go-form-processor` to better reflect HTML form processing capabilities
+- Updated all import paths to use new module name
+- Updated documentation to reflect new project name and expanded capabilities
+
+### Added
+- Clarified HTML form processing capabilities in documentation
+- Enhanced project description to better represent both PDF and HTML functionality
+
 ## [0.1.11] - 2024-02-06
 
 ### Added
@@ -27,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Migrated repository to GitHub
-- Updated module path to `github.com/josephmowjew/go-pdf-filler`
+- Updated module path to `github.com/josephmowjew/go-form-processor`
 - Updated all internal import paths to reflect new module path
 - Refreshed dependency references
 

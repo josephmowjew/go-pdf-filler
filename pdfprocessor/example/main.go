@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/josephmowjew/go-pdf-filler/pdfprocessor"
-	service "github.com/josephmowjew/go-pdf-filler/pdfprocessor/services"
-	"github.com/josephmowjew/go-pdf-filler/types"
+	"github.com/josephmowjew/go-form-processor/pdfprocessor"
+	service "github.com/josephmowjew/go-form-processor/pdfprocessor/services"
+	"github.com/josephmowjew/go-form-processor/types"
 )
 
 func dumpPDFFields(processor *pdfprocessor.PDFForm, outputPath string) error {

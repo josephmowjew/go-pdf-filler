@@ -1,4 +1,4 @@
-module github.com/josephmowjew/go-pdf-filler
+module github.com/josephmowjew/go-form-processor
 
 go 1.23
 
