@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.11] - 2024-02-06
+
+### Added
+- Automatic .pdf extension handling for generated files
+- Enhanced HTML to PDF conversion support
+- Improved file extension validation
+- Better handling of file types in upload process
+
+### Changed
+- Updated file naming convention for generated PDFs
+- Improved error messages for file extension issues
+- Enhanced documentation with HTML to PDF examples
+- Updated example code to demonstrate automatic extension handling
+
+### Fixed
+- File extension issues in HTML to PDF conversion
+- Missing .pdf extension in upload response
+- Inconsistent file extension handling
+
 ## [0.1.10] - 2024-02-05
 
 ### Changed

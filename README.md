@@ -5,6 +5,7 @@ A Go package for programmatically filling PDF forms with support for validation,
 ## Features
 
 - Dynamic PDF form field detection and manipulation
+- HTML to PDF conversion support
 - Support for multiple field types:
   - Text fields
   - Boolean fields (checkboxes, radio buttons)
@@ -26,6 +27,7 @@ A Go package for programmatically filling PDF forms with support for validation,
   - Field options enumeration
   - Current value inspection
   - Detailed field properties export
+- Automatic file extension handling (.pdf)
 
 ## Requirements
 
@@ -44,7 +46,8 @@ PDFtk Server is required for PDF form field detection and manipulation:
 #### Required Go Packages
 These will be automatically installed when you run `go get`:
 - github.com/desertbit/fillpdf - For PDF form filling
-- github.com/unidoc/unipdf/v3 - For PDF processing
+- github.com/PuerkitoBio/goquery - For HTML processing
+- github.com/chromedp/chromedp - For HTML to PDF conversion
 - Other dependencies will be handled automatically by Go modules
 
 ### Optional Dependencies
@@ -103,8 +106,14 @@ func main() {
         log.Fatalf("Failed to create form: %v", err)
     }
 
-    // Print available fields
-    form.PrintFields()
+    // For HTML forms
+    htmlForm, err := pdfprocessor.NewHTMLFormFromURL("https://example.com/form.html",
+        pdfprocessor.WithValidation(),
+        pdfprocessor.WithLogger(log.Default()),
+    )
+    if err != nil {
+        log.Fatalf("Failed to create HTML form: %v", err)
+    }
 
     // Set multiple fields with automatic type conversion
     fields := map[string]interface{}{
@@ -112,7 +121,6 @@ func main() {
         "Age":         "30",
         "IsEmployed":  true,
         "Department":  "Engineering",
-        "Title Only": true,
     }
 
     if err := form.SetFields(fields); err != nil {
@@ -121,7 +129,7 @@ func main() {
 
     // Configure upload with metadata
     uploadConfig := types.UploadConfig{
-        FileName:        "filled_form.pdf",
+        FileName:        "filled_form.pdf", // .pdf extension will be added automatically if missing
         OrganizationID:  "org123",
         BranchID:        "branch456",
         CreatedBy:       "system",
@@ -298,4 +306,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Acknowledgments
 
 - Uses [fillpdf](https://github.com/desertbit/fillpdf) for PDF manipulation
-- Requires PDFtk for PDF processing 
+- Uses [chromedp](https://github.com/chromedp/chromedp) for HTML to PDF conversion
+- Requires PDFtk for PDF processing
